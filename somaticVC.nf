@@ -563,11 +563,11 @@ alleleCountTumor = Channel.create()
 alleleCountOutput
   .choice(alleleCountTumor, alleleCountNormal) {it[1] == 0 ? 1 : 0}
 
-alleleCountOutput = alleleCountNormal.combine(alleleCountTumor)
+alleleCountOutput = alleleCountNormal.combine(alleleCountTumor, by: 0)
 
 alleleCountOutput = alleleCountOutput.map {
   idPatientNormal, statusNormal, idSampleNormal, alleleCountNormal,
-  idPatientTumor,  statusTumor,  idSampleTumor,  alleleCountTumor ->
+  statusTumor,  idSampleTumor,  alleleCountTumor ->
   [idPatientNormal, idSampleNormal, idSampleTumor, alleleCountNormal, alleleCountTumor]
 }
 

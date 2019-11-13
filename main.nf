@@ -103,7 +103,7 @@ if (tsvPath) {
 if (step == 'recalibrate') (patientGenders, bamFiles) = SarekUtils.extractGenders(bamFiles)
 else (patientGenders, inputFiles) = SarekUtils.extractGenders(inputFiles)
 
-### ADDED BY LC TO CORRECT QUALIMAP STATS 
+////// ADDED BY LC TO CORRECT QUALIMAP STATS 
 ch_targetBED = params.targetBED ? Channel.value(file(params.targetBED)) : "null"
 
 /*

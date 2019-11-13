@@ -103,6 +103,9 @@ if (tsvPath) {
 if (step == 'recalibrate') (patientGenders, bamFiles) = SarekUtils.extractGenders(bamFiles)
 else (patientGenders, inputFiles) = SarekUtils.extractGenders(inputFiles)
 
+### ADDED BY LC TO CORRECT QUALIMAP STATS 
+ch_targetBED = params.targetBED ? Channel.value(file(params.targetBED)) : "null"
+
 /*
 ================================================================================
 =                               P R O C E S S E S                              =
@@ -206,6 +209,7 @@ process RunBamQCmapped {
   publishDir "${params.outDir}/Reports/bamQC", mode: params.publishDirMode
 
   input:
+    file(targetBED) from ch_targetBED
     set idPatient, status, idSample, idRun, file(bam) from mappedBamForQC
 
   output:
@@ -214,12 +218,14 @@ process RunBamQCmapped {
   when: !params.noReports && !params.noBAMQC
 
   script:
+  use_bed = params.targetBED ? "-gff ${targetBED}" : ''
   """
   qualimap --java-mem-size=${task.memory.toGiga()}G \
   bamqc \
   -bam ${bam} \
   --paint-chromosome-limits \
   --genome-gc-distr HUMAN \
+  $use_bed \
   -nt ${task.cpus} \
   -skip-duplicated \
   --skip-dup-mode 0 \
@@ -474,6 +480,7 @@ process RunBamQCrecalibrated {
   publishDir "${params.outDir}/Reports/bamQC", mode: params.publishDirMode
 
   input:
+    file(targetBED) from ch_targetBED
     set idPatient, status, idSample, file(bam), file(bai) from bamForBamQC
 
   output:
@@ -482,12 +489,14 @@ process RunBamQCrecalibrated {
   when: !params.noReports && !params.noBAMQC
 
   script:
+  use_bed = params.targetBED ? "-gff ${targetBED}" : ''
   """
   qualimap --java-mem-size=${task.memory.toGiga()}G \
   bamqc \
   -bam ${bam} \
   --paint-chromosome-limits \
   --genome-gc-distr HUMAN \
+  $use_bed \
   -nt ${task.cpus} \
   -skip-duplicated \
   --skip-dup-mode 0 \
